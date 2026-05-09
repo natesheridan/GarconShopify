@@ -1,35 +1,66 @@
 <section class="garcon-hero" id="garcon-hero">
 
-  <!-- Scratch animation lines -->
-  <div class="hero-scratch" aria-hidden="true">
-    <div class="hero-scratch__line"></div>
-    <div class="hero-scratch__line"></div>
-    <div class="hero-scratch__line"></div>
-  </div>
+  <!-- White flash element -->
+  <div class="hero-flash" aria-hidden="true"></div>
 
-  <!-- Purple vertical accents -->
-  <div class="hero-accent hero-accent--left" aria-hidden="true"></div>
-  <div class="hero-accent hero-accent--right" aria-hidden="true"></div>
+  <!-- Atmospheric overlays -->
+  <div class="hero-texture" aria-hidden="true"></div>
+  <div class="hero-scanlines" aria-hidden="true"></div>
 
-  <!-- Main content -->
-  <div class="hero-content">
+  <!-- Registration corner marks -->
+  <div class="hero-corner hero-corner--tl" aria-hidden="true"></div>
+  <div class="hero-corner hero-corner--tr" aria-hidden="true"></div>
+  <div class="hero-corner hero-corner--bl" aria-hidden="true"></div>
+  <div class="hero-corner hero-corner--br" aria-hidden="true"></div>
+
+  <!-- Vertical side labels -->
+  <div class="hero-side-label hero-side-label--left" aria-hidden="true">GARCON / SS26</div>
+  <div class="hero-side-label hero-side-label--right" aria-hidden="true">001</div>
+
+  <!-- Logo stack: chromatic layers + main -->
+  <div class="hero-logo-wrap">
+    <div class="hero-logo-glitch-b" aria-hidden="true">
+      <img
+        src="{{ 'garcon-logo.svg' | asset_url }}"
+        alt=""
+        width="900"
+        height="180"
+        loading="eager"
+      >
+    </div>
+    <div class="hero-logo-glitch-r" aria-hidden="true">
+      <img
+        src="{{ 'garcon-logo.svg' | asset_url }}"
+        alt=""
+        width="900"
+        height="180"
+        loading="eager"
+      >
+    </div>
     <img
-      class="hero-logo"
+      class="hero-logo-main"
       src="{{ 'garcon-logo.svg' | asset_url }}"
       alt="GARCON"
-      width="640"
-      height="120"
+      width="900"
+      height="180"
       loading="eager"
     >
+  </div>
+
+  <!-- Sub-content: rule + tagline + CTA -->
+  <div class="hero-sub">
+    <div class="hero-rule" aria-hidden="true"></div>
 
     {%- if section.settings.tagline != blank -%}
       <p class="hero-tagline">{{ section.settings.tagline }}</p>
     {%- endif -%}
 
+    <span class="hero-sub-label">EST. 2026 — INTERNET DIVISION</span>
+
     {%- if section.settings.cta_label != blank and section.settings.cta_link != blank -%}
       <a href="{{ section.settings.cta_link }}" class="hero-cta">
         {{ section.settings.cta_label }}
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </a>
@@ -38,8 +69,8 @@
 
   <!-- Scroll indicator -->
   <div class="hero-scroll" aria-hidden="true">
-    <span>Scroll</span>
-    <div class="hero-scroll__arrow"></div>
+    <span>SCROLL</span>
+    <div class="hero-scroll-line"></div>
   </div>
 
 </section>

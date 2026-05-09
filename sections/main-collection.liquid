@@ -2,70 +2,78 @@
 
 <div class="collection-page">
   <div class="collection-page__header">
-    <h1 class="collection-page__title">{{ collection.title }}</h1>
+    <h1 class="collection-page__title">{{ collection.title | upcase }}</h1>
     <p class="collection-page__count">{{ collection.products_count }} items</p>
   </div>
 
   <div class="collection-toolbar">
     <div class="collection-search">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
       </svg>
-      <input type="search" placeholder="Search products..." aria-label="Search">
+      <input type="search" placeholder="Search..." aria-label="Search products">
     </div>
 
     <select class="filter-select" aria-label="Filter by type">
-      <option value="all">All types</option>
+      <option value="all">All</option>
       {%- for type in collection.all_types -%}
         {%- unless type == blank -%}
-          <option value="{{ type }}">{{ type }}</option>
+          <option value="{{ type }}">{{ type | upcase }}</option>
         {%- endunless -%}
       {%- endfor -%}
     </select>
 
-    <select class="filter-select" name="sort_by" aria-label="Sort by">
-      <option value="manual">Featured</option>
-      <option value="price-ascending" {% if sort_by == 'price-ascending' %}selected{% endif %}>Price: Low to High</option>
-      <option value="price-descending" {% if sort_by == 'price-descending' %}selected{% endif %}>Price: High to Low</option>
+    <select class="filter-select" name="sort_by" aria-label="Sort by" onchange="window.location.search = '?sort_by=' + this.value">
+      <option value="manual" {% if sort_by == 'manual' %}selected{% endif %}>Featured</option>
+      <option value="price-ascending" {% if sort_by == 'price-ascending' %}selected{% endif %}>Price ↑</option>
+      <option value="price-descending" {% if sort_by == 'price-descending' %}selected{% endif %}>Price ↓</option>
       <option value="created-descending" {% if sort_by == 'created-descending' %}selected{% endif %}>Newest</option>
     </select>
   </div>
 
   <div class="product-list">
     {%- for product in collection.products -%}
-      <a class="product-list-item" href="{{ product.url }}">
-        <img
-          class="product-list-item__img"
-          src="{{ product.featured_image | image_url: width: 160 }}"
-          alt="{{ product.featured_image.alt | escape }}"
-          width="80" height="80"
-          loading="lazy"
-        >
-        <div class="product-list-item__info">
-          <p class="product-list-item__name">{{ product.title }}</p>
-          <p class="product-list-item__price">{{ product.price | money }}</p>
+      <a class="product-list-row" href="{{ product.url }}">
+        {%- if product.featured_image -%}
+          <img
+            class="product-list-row__thumb"
+            src="{{ product.featured_image | image_url: width: 140 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            width="70"
+            height="70"
+            loading="lazy"
+          >
+        {%- else -%}
+          <div class="product-list-row__thumb" style="background:var(--ash);"></div>
+        {%- endif -%}
+
+        <div class="product-list-row__info">
+          <p class="product-list-row__name">{{ product.title | upcase }}</p>
           {%- if product.type != blank -%}
-            <span class="product-list-item__tag">{{ product.type }}</span>
+            <span class="product-list-row__type">{{ product.type | upcase }}</span>
           {%- endif -%}
         </div>
-        <div style="flex-shrink:0;align-self:center">
-          <svg width="14" height="14" fill="none" stroke="var(--text-3)" stroke-width="2" viewBox="0 0 24 24">
+
+        <p class="product-list-row__price">{{ product.price | money }}</p>
+
+        <div class="product-list-row__arrow" aria-hidden="true">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </div>
       </a>
     {%- else -%}
-      <p style="padding:40px;color:var(--text-3);font-size:12px;letter-spacing:0.1em;">No products found.</p>
+      <p class="collection-empty">No products found.</p>
     {%- endfor -%}
   </div>
 
   {%- if paginate.pages > 1 -%}
-    <div style="display:flex;justify-content:center;gap:8px;margin-top:48px">
+    <div class="collection-pagination">
       {%- for i in (1..paginate.pages) -%}
-        <a href="{{ paginate.page_param | replace: 'page=1', 'page=' | append: i }}"
-           style="padding:8px 14px;border:1px solid {% if i == paginate.current_page %}var(--accent){% else %}var(--border){% endif %};color:{% if i == paginate.current_page %}var(--accent-l){% else %}var(--text-3){% endif %};font-size:11px;letter-spacing:0.1em;">
-          {{ i }}
-        </a>
+        <a
+          href="?page={{ i }}"
+          class="collection-pagination__page{% if i == paginate.current_page %} is-active{% endif %}"
+        >{{ i }}</a>
       {%- endfor -%}
     </div>
   {%- endif -%}

@@ -3,11 +3,18 @@
 {%- endif -%}
 
 <section class="featured-products">
-  <div class="featured-products__header">
-    <h2 class="featured-products__title">{{ section.settings.heading | default: 'Drop' }}</h2>
-    <a href="{{ routes.collections_url }}" class="featured-products__link">
-      View all &rarr;
-    </a>
+  <div class="featured-header">
+    <h2 class="featured-heading">{{ section.settings.heading | default: 'Drop' }}</h2>
+    <div class="featured-meta">
+      <p>
+        {%- if featured_collection -%}
+          {{ featured_collection.products_count }} PIECES
+        {%- else -%}
+          CURRENT DROP
+        {%- endif -%}
+      </p>
+      <a href="{{ routes.collections_url }}" class="featured-all">View all &rarr;</a>
+    </div>
   </div>
 
   <div class="product-grid{% if section.settings.product_limit == 2 %} product-grid--2col{% endif %}">
@@ -17,13 +24,12 @@
       {%- endfor -%}
     {%- else -%}
       {%- for i in (1..section.settings.product_limit) -%}
-        <div class="product-card" style="background:var(--bg-3);">
-          <div class="product-card__overlay"></div>
+        <div class="product-card">
+          <div class="product-card__img-wrap" style="background:var(--ash);aspect-ratio:2/3;"></div>
           <div class="product-card__info">
-            <span class="product-card__name" style="opacity:0.2">PRODUCT</span>
-            <span class="product-card__price" style="opacity:0.2">—</span>
+            <span class="product-card__name" style="opacity:0.18">PRODUCT {{ i }}</span>
+            <span class="product-card__price" style="opacity:0.18">—</span>
           </div>
-          <div class="product-card__accent"></div>
         </div>
       {%- endfor -%}
     {%- endif -%}

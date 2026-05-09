@@ -1,28 +1,32 @@
 <footer class="site-footer">
-  <div class="footer-brand">
-    <img src="{{ 'garcon-logo.svg' | asset_url }}" alt="{{ shop.name }}" height="24" loading="lazy">
-    <p style="margin-top:12px">{{ section.settings.tagline | default: 'Meme apparel for the culturally broken.' }}</p>
-  </div>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="{{ 'garcon-logo.svg' | asset_url }}" alt="{{ shop.name }}" height="22" loading="lazy">
+      {%- if section.settings.tagline != blank -%}
+        <p class="footer-copy" style="margin-top:14px">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+    </div>
 
-  <nav class="footer-nav">
-    <h4>Store</h4>
-    {%- for link in linklists[section.settings.footer_menu].links -%}
-      <a href="{{ link.url }}">{{ link.title }}</a>
-    {%- endfor -%}
-  </nav>
+    <nav class="footer-nav" aria-label="Footer navigation">
+      {%- for link in linklists[section.settings.footer_menu].links -%}
+        <a href="{{ link.url }}">{{- link.title | upcase -}}</a>
+      {%- endfor -%}
+    </nav>
 
-  <div class="footer-social">
-    <h4>Contact</h4>
-    {%- if section.settings.email != blank -%}
-      <a href="mailto:{{ section.settings.email }}" style="font-size:12px;color:var(--text-2);display:block;margin-bottom:8px;">{{ section.settings.email }}</a>
-    {%- endif -%}
-    {%- if section.settings.instagram != blank -%}
-      <a href="https://instagram.com/{{ section.settings.instagram }}" target="_blank" rel="noopener" style="font-size:12px;color:var(--text-2);display:block;margin-bottom:8px;">@{{ section.settings.instagram }}</a>
-    {%- endif -%}
+    <div class="footer-info">
+      {%- if section.settings.email != blank -%}
+        <a href="mailto:{{ section.settings.email }}" class="footer-copy" style="display:block;margin-bottom:8px">{{ section.settings.email }}</a>
+      {%- endif -%}
+      {%- if section.settings.instagram != blank -%}
+        <a href="https://instagram.com/{{ section.settings.instagram }}" target="_blank" rel="noopener noreferrer" class="footer-copy" style="display:block">
+          @{{ section.settings.instagram }}
+        </a>
+      {%- endif -%}
+    </div>
   </div>
 
   <div class="footer-bottom">
-    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | upcase }}</p>
     <div style="display:flex;gap:20px">
       <a href="{{ routes.root_url }}policies/privacy-policy">Privacy</a>
       <a href="{{ routes.root_url }}policies/terms-of-service">Terms</a>

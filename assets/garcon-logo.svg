@@ -1,55 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 160" width="780" height="160">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 180" width="900" height="180">
   <defs>
-    <!-- Distress / grain filter -->
-    <filter id="garcon-distress" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" seed="2" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="distorted"/>
-      <feMerge>
-        <feMergeNode in="distorted"/>
-      </feMerge>
+    <!-- Heavy organic displacement for torn/scarred look -->
+    <filter id="g-distress" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.055" numOctaves="5" seed="17" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G" result="warped"/>
+      <!-- Fine grain on top -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="9" result="grain"/>
+      <feColorMatrix in="grain" type="saturate" values="0" result="graygrain"/>
+      <feBlend in="warped" in2="graygrain" mode="overlay" result="blended"/>
+      <feComponentTransfer in="blended">
+        <feFuncR type="linear" slope="1.08" intercept="-0.05"/>
+        <feFuncG type="linear" slope="1.08" intercept="-0.05"/>
+        <feFuncB type="linear" slope="1.08" intercept="-0.05"/>
+      </feComponentTransfer>
     </filter>
 
-    <!-- Mask with diagonal slash cuts -->
-    <mask id="garcon-slash-mask">
-      <!-- White base = everything visible -->
-      <rect width="780" height="160" fill="white"/>
-      <!-- Slash 1: G/A boundary -->
-      <polygon points="130,0 136,0 122,160 116,160" fill="black"/>
-      <!-- Slash 2: in the A -->
-      <polygon points="248,0 253,0 237,160 232,160" fill="black"/>
-      <!-- Slash 3: between R/C -->
-      <polygon points="396,0 403,0 385,160 378,160" fill="black"/>
-      <!-- Slash 4: in the O -->
-      <polygon points="540,0 545,0 529,160 524,160" fill="black"/>
-      <!-- Slash 5: in the N -->
-      <polygon points="678,0 682,0 668,160 664,160" fill="black"/>
-      <!-- Fine horizontal scratch 1 -->
-      <rect x="0" y="38" width="780" height="1.5" fill="black" opacity="0.4"/>
-      <!-- Fine horizontal scratch 2 -->
-      <rect x="0" y="120" width="780" height="0.8" fill="black" opacity="0.3"/>
+    <!-- Deep slash cuts — aggressive, uneven, diagonal -->
+    <mask id="g-slashmask">
+      <rect width="900" height="180" fill="white"/>
+
+      <!-- Primary slash: deep through G into A -->
+      <polygon points="127,0 135,0 117,180 109,180" fill="black"/>
+      <!-- Splinter off main slash -->
+      <polygon points="138,0 140,0 125,90 123,90" fill="black" opacity="0.7"/>
+
+      <!-- Slash through A -->
+      <polygon points="263,0 268,0 250,180 245,180" fill="black"/>
+
+      <!-- Long raking slash through R/C -->
+      <polygon points="388,0 397,0 375,180 366,180" fill="black"/>
+      <!-- Micro tear beside it -->
+      <polygon points="403,0 405,0 395,60 393,60" fill="black" opacity="0.6"/>
+
+      <!-- Slash through O -->
+      <polygon points="545,0 551,0 533,180 527,180" fill="black"/>
+
+      <!-- Slash through N -->
+      <polygon points="700,0 705,0 689,180 684,180" fill="black"/>
+      <!-- Short splinter -->
+      <polygon points="710,80 712,80 706,180 704,180" fill="black" opacity="0.5"/>
+
+      <!-- Horizontal micro-cracks — different opacities for depth -->
+      <rect x="0"   y="24"  width="900" height="1"   fill="black" opacity="0.5"/>
+      <rect x="0"   y="58"  width="430" height="0.7" fill="black" opacity="0.35"/>
+      <rect x="300" y="115" width="600" height="1.2" fill="black" opacity="0.45"/>
+      <rect x="0"   y="148" width="900" height="0.7" fill="black" opacity="0.3"/>
+
+      <!-- Chip/pock marks -->
+      <ellipse cx="80"  cy="90"  rx="3" ry="2"  fill="black" opacity="0.7"/>
+      <ellipse cx="340" cy="45"  rx="2" ry="1.5" fill="black" opacity="0.6"/>
+      <ellipse cx="620" cy="130" rx="4" ry="2"  fill="black" opacity="0.65"/>
+      <ellipse cx="820" cy="70"  rx="2" ry="3"  fill="black" opacity="0.55"/>
     </mask>
   </defs>
 
-  <!-- Transparent background -->
-  <rect width="780" height="160" fill="none"/>
+  <rect width="900" height="180" fill="none"/>
 
-  <!-- Wordmark with distress filter and slash mask -->
-  <g filter="url(#garcon-distress)" mask="url(#garcon-slash-mask)">
+  <!-- Main wordmark: white, bold, skewed, scarred -->
+  <g filter="url(#g-distress)" mask="url(#g-slashmask)">
     <text
-      x="10"
-      y="135"
-      font-family="'Bebas Neue', Impact, 'Arial Narrow', sans-serif"
-      font-size="148"
+      x="8"
+      y="150"
+      font-family="'Bebas Neue', 'Impact', 'Arial Black', sans-serif"
+      font-size="165"
       font-weight="900"
-      letter-spacing="-2"
-      fill="#EBEBEB"
-      transform="skewX(-7)"
+      letter-spacing="-4"
+      fill="#FFFFFF"
+      transform="skewX(-8)"
     >GARCON</text>
   </g>
 
-  <!-- Purple accent bar at bottom -->
-  <rect x="0" y="154" width="780" height="3" fill="#8B5CF6"/>
-  <!-- Purple corner dots -->
-  <circle cx="4" cy="155" r="3" fill="#8B5CF6"/>
-  <circle cx="776" cy="155" r="3" fill="#8B5CF6"/>
+  <!-- Blood-red underline — jagged, not clean -->
+  <line x1="0" y1="172" x2="760" y2="172" stroke="#C0392B" stroke-width="2" stroke-dasharray="180,4,60,2,240,3,80,5,100"/>
+  <!-- Second thin line offset -->
+  <line x1="40" y1="175" x2="900" y2="175" stroke="#7f1d1d" stroke-width="1" stroke-dasharray="90,8,200,3,140"/>
+
+  <!-- Corner tick marks in red -->
+  <line x1="0"   y1="0"   x2="20"  y2="0"   stroke="#C0392B" stroke-width="1.5"/>
+  <line x1="0"   y1="0"   x2="0"   y2="14"  stroke="#C0392B" stroke-width="1.5"/>
+  <line x1="900" y1="180" x2="880" y2="180" stroke="#C0392B" stroke-width="1.5"/>
+  <line x1="900" y1="180" x2="900" y2="166" stroke="#C0392B" stroke-width="1.5"/>
 </svg>

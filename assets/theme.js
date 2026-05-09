@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initHeader();
   initCartCount();
+  initHeroAnimation();
   initHeroParallax();
   initProductPageSizes();
   initCollectionSearch();
@@ -14,11 +15,6 @@ function initHeader() {
   if (!header) return;
   window.addEventListener('scroll', () => {
     header.classList.toggle('is-scrolled', window.scrollY > 20);
-    if (window.scrollY > 20) {
-      header.style.borderBottomColor = 'var(--border)';
-    } else {
-      header.style.borderBottomColor = 'transparent';
-    }
   }, { passive: true });
 }
 
@@ -39,16 +35,61 @@ function initCartCount() {
     .catch(() => {});
 }
 
-// Subtle hero parallax
+// Hero logo slam → glitch → settle animation sequence
+function initHeroAnimation() {
+  const flash    = document.querySelector('.hero-flash');
+  const logoMain = document.querySelector('.hero-logo-main');
+  const logoWrap = document.querySelector('.hero-logo-wrap');
+  const heroSub  = document.querySelector('.hero-sub');
+  const heroScroll = document.querySelector('.hero-scroll');
+  const heroRule = document.querySelector('.hero-rule');
+
+  if (!logoMain) return;
+
+  // Phase 1 — white flash fires after brief darkness
+  setTimeout(() => {
+    if (flash) flash.classList.add('fire');
+
+    // Phase 2 — logo slams in as flash fades
+    setTimeout(() => {
+      logoMain.classList.add('slam');
+
+      // Phase 3 — chromatic glitch burst post-impact
+      setTimeout(() => {
+        if (logoWrap) logoWrap.classList.add('glitching');
+
+        // Phase 4 — settle: everything goes quiet, sub-content appears
+        setTimeout(() => {
+          if (logoWrap) logoWrap.classList.remove('glitching');
+          logoMain.classList.add('settled');
+          if (heroSub)  heroSub.classList.add('visible');
+          if (heroScroll) heroScroll.classList.add('visible');
+          // Slight delay so rule draws after fade-in begins
+          setTimeout(() => {
+            if (heroRule) heroRule.classList.add('drawn');
+          }, 120);
+        }, 580);
+      }, 920);
+    }, 150);
+  }, 320);
+}
+
+// Subtle hero depth parallax — runs only after settle phase
 function initHeroParallax() {
   const hero = document.querySelector('.garcon-hero');
   if (!hero) return;
+  let settled = false;
+
+  // Don't start parallax until settle animation is done
+  setTimeout(() => { settled = true; }, 2200);
+
   window.addEventListener('scroll', () => {
+    if (!settled) return;
     const y = window.scrollY;
-    const content = hero.querySelector('.hero-content');
-    if (content && y < window.innerHeight) {
-      content.style.transform = `translateY(${y * 0.18}px)`;
-      content.style.opacity = 1 - (y / (window.innerHeight * 0.7));
+    if (y < window.innerHeight) {
+      hero.style.setProperty('--parallax-y', `${y * 0.12}px`);
+      const sub = hero.querySelector('.hero-sub');
+      if (sub) sub.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.6)));
     }
   }, { passive: true });
 }
@@ -60,7 +101,6 @@ function initProductPageSizes() {
     btn.addEventListener('click', () => {
       sizeBtns.forEach(b => b.classList.remove('is-active'));
       btn.classList.add('is-active');
-      // Update hidden variant input if needed
       const variantInput = document.querySelector('[name="id"]');
       if (variantInput && btn.dataset.variantId) {
         variantInput.value = btn.dataset.variantId;
@@ -69,31 +109,31 @@ function initProductPageSizes() {
   });
 }
 
-// Client-side search in collection
+// Client-side search and filter in collection
 function initCollectionSearch() {
   const searchInput = document.querySelector('.collection-search input');
-  const items = document.querySelectorAll('.product-list-item, .product-card');
-  if (!searchInput || !items.length) return;
+  const filterSelects = document.querySelectorAll('.filter-select');
+  const items = document.querySelectorAll('.product-list-row');
+  if (!items.length) return;
 
-  searchInput.addEventListener('input', () => {
-    const q = searchInput.value.toLowerCase().trim();
+  function applyFilters() {
+    const q    = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const typeSel = document.querySelector('.filter-select:not([name="sort_by"])');
+    const type = typeSel ? typeSel.value : 'all';
+
     items.forEach(item => {
-      const name = (item.querySelector('.product-list-item__name, .product-card__name') || {}).textContent || '';
-      item.style.display = (!q || name.toLowerCase().includes(q)) ? '' : 'none';
-    });
-  });
-
-  // Filter by type
-  const filterSelect = document.querySelector('.filter-select');
-  if (filterSelect) {
-    filterSelect.addEventListener('change', () => {
-      const val = filterSelect.value;
-      items.forEach(item => {
-        const tag = (item.querySelector('.product-list-item__tag') || {}).textContent || '';
-        item.style.display = (!val || val === 'all' || tag.toLowerCase().includes(val.toLowerCase())) ? '' : 'none';
-      });
+      const name = (item.querySelector('.product-list-row__name') || {}).textContent || '';
+      const tag  = (item.querySelector('.product-list-row__type') || {}).textContent || '';
+      const matchQ    = !q    || name.toLowerCase().includes(q);
+      const matchType = !type || type === 'all' || tag.toLowerCase().includes(type.toLowerCase());
+      item.style.display = (matchQ && matchType) ? '' : 'none';
     });
   }
+
+  if (searchInput) searchInput.addEventListener('input', applyFilters);
+  filterSelects.forEach(sel => {
+    if (sel.name !== 'sort_by') sel.addEventListener('change', applyFilters);
+  });
 }
 
 // Add to cart
@@ -106,32 +146,53 @@ function addToCart(variantId, quantity = 1) {
     .then(r => r.json())
     .then(item => {
       initCartCount();
-      showCartNotification(item.title);
+      showCartToast(item.title);
       return item;
     });
 }
 
-function showCartNotification(title) {
+function showCartToast(title) {
   const n = document.createElement('div');
-  n.style.cssText = `
-    position:fixed; bottom:24px; right:24px; z-index:9998;
-    background:var(--surface); border:1px solid var(--accent);
-    padding:14px 20px; font-size:11px; font-family:var(--font-body);
-    letter-spacing:0.1em; color:var(--text); max-width:280px;
-    box-shadow:0 0 24px var(--accent-glow);
-    animation: notif-in 0.3s ease-out;
-  `;
-  n.textContent = `Added to cart — ${title}`;
+  n.className = 'garcon-toast';
+  n.textContent = `+ CART — ${title.toUpperCase()}`;
   document.body.appendChild(n);
-  setTimeout(() => { n.style.opacity = '0'; n.style.transition = '0.3s'; setTimeout(() => n.remove(), 300); }, 2800);
+  requestAnimationFrame(() => n.classList.add('garcon-toast--in'));
+  setTimeout(() => {
+    n.classList.remove('garcon-toast--in');
+    setTimeout(() => n.remove(), 300);
+  }, 2600);
 }
 
+// Injected utility styles
 const style = document.createElement('style');
 style.textContent = `
-  @keyframes notif-in {
-    from { opacity:0; transform: translateY(10px); }
-    to   { opacity:1; transform: translateY(0); }
+  .site-header.is-scrolled {
+    background: rgba(0,0,0,0.96);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.06);
   }
-  .site-header.is-scrolled { box-shadow: 0 1px 0 var(--border); }
+  .garcon-toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    background: #0a0a0a;
+    border: 1px solid var(--red);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding: 12px 18px;
+    box-shadow: 0 0 20px rgba(192,57,43,0.25);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .garcon-toast--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .garcon-hero {
+    --parallax-y: 0px;
+  }
 `;
 document.head.appendChild(style);
