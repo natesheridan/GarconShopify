@@ -6,13 +6,18 @@
   </button>
 
   <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
-    <img
-      src="{{ 'garcon-logo.svg' | asset_url }}"
-      alt="{{ shop.name }}"
-      width="110"
-      height="28"
-      loading="eager"
-    >
+    <!-- Clip container: full header height, overflow hidden — logo overflows top/bottom intentionally -->
+    <div class="site-header__logo-clip">
+      <img
+        id="site-logo-img"
+        class="site-header__logo-img"
+        src="{{ 'garcon-logo-white.png' | asset_url }}"
+        alt="{{ shop.name }}"
+        width="140"
+        height="140"
+        loading="eager"
+      >
+    </div>
   </a>
 
   <nav class="site-header__nav" id="mobile-nav" aria-label="Primary navigation">

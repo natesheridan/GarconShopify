@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeader();
   initCartCount();
   initHeroAnimation();
-  initHeroParallax();
   initProductPageSizes();
   initCollectionSearch();
 });
@@ -35,7 +34,9 @@ function initCartCount() {
     .catch(() => {});
 }
 
-// Hero logo slam → glitch → settle animation sequence
+// ─────────────────────────────────────────────────────────────────────────────
+// HERO ANIMATION — slam → glitch → settle → scroll-to-header
+// ─────────────────────────────────────────────────────────────────────────────
 function initHeroAnimation() {
   const flash    = document.querySelector('.hero-flash');
   const logoMain = document.querySelector('.hero-logo-main');
@@ -46,55 +47,146 @@ function initHeroAnimation() {
 
   if (!logoMain) return;
 
-  // Phase 1 — white flash fires after brief darkness
+  // Phase 1 — white flash
   setTimeout(() => {
     if (flash) flash.classList.add('fire');
 
-    // Phase 2 — logo slams in as flash fades
+    // Phase 2 — logo slams in
     setTimeout(() => {
       logoMain.classList.add('slam');
 
-      // Phase 3 — chromatic glitch burst post-impact
+      // Phase 3 — chromatic glitch burst
       setTimeout(() => {
         if (logoWrap) logoWrap.classList.add('glitching');
 
-        // Phase 4 — settle: everything goes quiet, sub-content appears
+        // Phase 4 — settle, reveal sub-content
         setTimeout(() => {
           if (logoWrap) logoWrap.classList.remove('glitching');
           logoMain.classList.add('settled');
-          if (heroSub)  heroSub.classList.add('visible');
+          if (heroSub)    heroSub.classList.add('visible');
           if (heroScroll) heroScroll.classList.add('visible');
-          // Slight delay so rule draws after fade-in begins
-          setTimeout(() => {
-            if (heroRule) heroRule.classList.add('drawn');
-          }, 120);
+          setTimeout(() => { if (heroRule) heroRule.classList.add('drawn'); }, 120);
+
+          // Phase 5 — hand off to scroll controller
+          initLogoScrollMorph();
         }, 580);
       }, 920);
     }, 150);
   }, 320);
 }
 
-// Subtle hero depth parallax — runs only after settle phase
-function initHeroParallax() {
-  const hero = document.querySelector('.garcon-hero');
-  if (!hero) return;
-  let settled = false;
+// ─────────────────────────────────────────────────────────────────────────────
+// LOGO SCROLL MORPH — fixed flying element tracks hero → shrinks into header
+// ─────────────────────────────────────────────────────────────────────────────
+function initLogoScrollMorph() {
+  const hero      = document.querySelector('.garcon-hero');
+  const heroMain  = document.querySelector('.hero-logo-main');
+  const heroWrap  = document.querySelector('.hero-logo-wrap');
+  const heroSub   = document.querySelector('.hero-sub');
+  const heroScroll = document.querySelector('.hero-scroll');
+  const headerLogoImg  = document.getElementById('site-logo-img');
+  const headerLogoClip = document.querySelector('.site-header__logo-clip');
 
-  // Don't start parallax until settle animation is done
-  setTimeout(() => { settled = true; }, 2200);
+  if (!hero || !heroMain || !headerLogoImg || !headerLogoClip) return;
 
-  window.addEventListener('scroll', () => {
-    if (!settled) return;
-    const y = window.scrollY;
-    if (y < window.innerHeight) {
-      hero.style.setProperty('--parallax-y', `${y * 0.12}px`);
-      const sub = hero.querySelector('.hero-sub');
-      if (sub) sub.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.6)));
+  // Measure hero logo's settled position in viewport
+  const heroRect = heroMain.getBoundingClientRect();
+  const startW   = heroRect.width;
+  const startX   = heroRect.left + heroRect.width / 2;
+  const startY   = heroRect.top  + heroRect.height / 2;
+
+  // Build the flying element — same PNG, starts exactly over hero logo
+  const flyLogo = document.createElement('img');
+  flyLogo.id  = 'garcon-fly-logo';
+  flyLogo.src = heroMain.src;
+  flyLogo.alt = '';
+  flyLogo.style.cssText = [
+    'position:fixed',
+    'pointer-events:none',
+    'z-index:999',
+    'display:block',
+    'object-fit:contain',
+    'transform:translate(-50%,-50%)',
+    `width:${startW}px`,
+    `left:${startX}px`,
+    `top:${startY}px`,
+  ].join(';');
+  document.body.appendChild(flyLogo);
+
+  // Hero logo invisible — fly logo takes over visually
+  heroMain.style.transition = 'opacity 0.05s';
+  heroMain.style.opacity    = '0';
+
+  // Constants for header target
+  const HEADER_H   = 52;    // header height px
+  const END_W      = 140;   // logo width in header (wider than header height = clips top/bottom)
+  const END_CLIP_V = Math.round((END_W - HEADER_H) / 2); // px clipped each side at full morph
+
+  // Scroll range: start fading at 5vh, fully morphed by 65% of hero height
+  const heroH      = hero.offsetHeight;
+  const scrollStart = window.innerHeight * 0.05;
+  const scrollEnd   = heroH * 0.65;
+
+  function tick() {
+    const sy = window.scrollY;
+    const raw = (sy - scrollStart) / (scrollEnd - scrollStart);
+    const progress = Math.min(1, Math.max(0, raw));
+    const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+    // Fade hero sub-content as user scrolls away
+    if (heroSub)   heroSub.style.opacity   = String(Math.max(0, 1 - progress * 2.2));
+    if (heroScroll) heroScroll.style.opacity = String(Math.max(0, 1 - progress * 3));
+    // Glitch layers fade first
+    if (heroWrap)  heroWrap.style.opacity  = String(Math.max(0, 1 - eased * 2.5));
+
+    if (progress >= 1) {
+      // Logo has fully landed in the header — swap fly logo for header img
+      flyLogo.style.display = 'none';
+      headerLogoImg.classList.add('is-visible');
+      return;
     }
-  }, { passive: true });
+
+    // Header logo not yet shown
+    headerLogoImg.classList.remove('is-visible');
+    flyLogo.style.display = 'block';
+
+    // Measure header logo slot each tick (handles resize)
+    const clipRect = headerLogoClip.getBoundingClientRect();
+    const endX     = clipRect.left + clipRect.width / 2;
+    const endY     = clipRect.top  + clipRect.height / 2;
+
+    // Interpolate size and position
+    const w = startW + (END_W - startW) * eased;
+    const x = startX + (endX - startX) * eased;
+
+    // Y: the hero logo moves up with scroll in document flow, but flyLogo is fixed.
+    // Track where hero logo center would be in viewport: startY - sy
+    const heroCurrentY = startY - sy;
+    const y = heroCurrentY + (endY - heroCurrentY) * eased;
+
+    flyLogo.style.width = `${w}px`;
+    flyLogo.style.left  = `${x}px`;
+    flyLogo.style.top   = `${y}px`;
+
+    // Apply clip-path in the final 35% of transition — logo appears to enter header bar
+    if (progress > 0.65) {
+      const clipP  = (progress - 0.65) / 0.35;   // 0→1 in last 35%
+      const clip   = Math.round(END_CLIP_V * clipP);
+      flyLogo.style.clipPath = `inset(${clip}px 0 ${clip}px 0)`;
+    } else {
+      flyLogo.style.clipPath = 'none';
+    }
+  }
+
+  window.addEventListener('scroll', tick, { passive: true });
+
+  // Run once in case page loads mid-scroll
+  tick();
 }
 
-// Size selector on product page
+// ─────────────────────────────────────────────────────────────────────────────
+// SIZE SELECTOR
+// ─────────────────────────────────────────────────────────────────────────────
 function initProductPageSizes() {
   const sizeBtns = document.querySelectorAll('.size-btn');
   sizeBtns.forEach(btn => {
@@ -109,11 +201,13 @@ function initProductPageSizes() {
   });
 }
 
-// Client-side search and filter in collection
+// ─────────────────────────────────────────────────────────────────────────────
+// COLLECTION SEARCH + FILTER
+// ─────────────────────────────────────────────────────────────────────────────
 function initCollectionSearch() {
-  const searchInput = document.querySelector('.collection-search input');
+  const searchInput  = document.querySelector('.collection-search input');
   const filterSelects = document.querySelectorAll('.filter-select');
-  const items = document.querySelectorAll('.product-list-row');
+  const items        = document.querySelectorAll('.product-list-row');
   if (!items.length) return;
 
   function applyFilters() {
@@ -136,7 +230,9 @@ function initCollectionSearch() {
   });
 }
 
-// Add to cart
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD TO CART
+// ─────────────────────────────────────────────────────────────────────────────
 function addToCart(variantId, quantity = 1) {
   return fetch('/cart/add.js', {
     method: 'POST',
@@ -163,13 +259,11 @@ function showCartToast(title) {
   }, 2600);
 }
 
-// Injected utility styles
+// ─────────────────────────────────────────────────────────────────────────────
+// INJECTED UTILITY STYLES
+// ─────────────────────────────────────────────────────────────────────────────
 const style = document.createElement('style');
 style.textContent = `
-  .site-header.is-scrolled {
-    background: rgba(0,0,0,0.96);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.06);
-  }
   .garcon-toast {
     position: fixed;
     bottom: 28px;
@@ -186,13 +280,11 @@ style.textContent = `
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
   }
   .garcon-toast--in {
     opacity: 1;
     transform: translateY(0);
-  }
-  .garcon-hero {
-    --parallax-y: 0px;
   }
 `;
 document.head.appendChild(style);

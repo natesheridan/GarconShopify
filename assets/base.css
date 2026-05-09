@@ -120,17 +120,51 @@ body::after {
   border-bottom: 1px solid transparent;
   transition: border-color 0.3s;
 }
-.site-header.scrolled { border-bottom-color: var(--border); }
+.site-header.scrolled,
+.site-header.is-scrolled {
+  border-bottom-color: var(--border);
+  background: rgba(0,0,0,0.96);
+}
 
 .site-header__logo {
-  height: 28px;
   display: flex;
   align-items: center;
   opacity: 0.9;
   transition: opacity 0.2s;
+  text-decoration: none;
 }
 .site-header__logo:hover { opacity: 1; }
-.site-header__logo img { height: 28px; width: auto; }
+
+/* Clip container — full header height, clips the square PNG to a horizontal band */
+.site-header__logo-clip {
+  height: 52px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.site-header__logo-img {
+  width: 140px;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.site-header__logo-img.is-visible {
+  opacity: 1;
+}
+
+/* Flying logo — fixed overlay that morphs from hero to header on scroll */
+#garcon-fly-logo {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  will-change: width, top, left, clip-path;
+}
 
 .site-header__nav {
   display: flex;
