@@ -1,0 +1,98 @@
+{%- assign product = product -%}
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+<div class="product-page">
+  <!-- Gallery -->
+  <div class="product-page__gallery">
+    {%- if product.featured_image -%}
+      <img
+        src="{{ product.featured_image | image_url: width: 1200 }}"
+        alt="{{ product.featured_image.alt | escape }}"
+        width="1200"
+        height="1600"
+        loading="eager"
+      >
+    {%- else -%}
+      <div style="width:100%;height:100%;background:var(--bg-3);display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:var(--font-display);font-size:80px;color:var(--border);letter-spacing:0.1em;">GARCON</span>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <!-- Info -->
+  <div class="product-page__info">
+    {%- if product.type != blank -%}
+      <p class="product-page__tag">{{ product.type }}</p>
+    {%- endif -%}
+
+    <h1 class="product-page__title">{{ product.title }}</h1>
+
+    <p class="product-page__price">
+      {{ current_variant.price | money }}
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span style="font-size:13px;color:var(--text-3);text-decoration:line-through;margin-left:8px;">{{ current_variant.compare_at_price | money }}</span>
+      {%- endif -%}
+    </p>
+
+    <div class="product-page__divider"></div>
+
+    {%- if product.description != blank -%}
+      <div class="product-page__desc">{{ product.description }}</div>
+    {%- endif -%}
+
+    <form method="post" action="/cart/add" id="product-form" novalidate>
+      <input type="hidden" name="form_type" value="product">
+      <input type="hidden" name="utf8" value="✓">
+      <input type="hidden" name="id" value="{{ current_variant.id }}">
+      <input type="hidden" name="quantity" value="1">
+
+      {%- unless product.has_only_default_variant -%}
+        {%- for option in product.options_with_values -%}
+          <div style="margin-bottom:16px;">
+            <p style="font-size:9px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px;">
+              {{ option.name }}
+            </p>
+            <div class="size-selector">
+              {%- for value in option.values -%}
+                {%- assign variant = product.variants | where: 'title', value | first -%}
+                <button
+                  type="button"
+                  class="size-btn{% if value == option.selected_value %} is-active{% endif %}"
+                  data-option="{{ option.name }}"
+                  data-value="{{ value }}"
+                  {% if variant %} data-variant-id="{{ variant.id }}"{% endif %}
+                  {% unless variant.available %} disabled style="opacity:0.35;cursor:not-allowed;"{% endunless %}
+                >
+                  {{ value }}
+                </button>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endunless -%}
+
+      {%- if current_variant.available -%}
+        <button type="submit" class="add-to-cart-btn">
+          Add to Cart
+        </button>
+      {%- else -%}
+        <button type="button" class="add-to-cart-btn" disabled style="opacity:0.4;cursor:not-allowed;">
+          Sold Out
+        </button>
+      {%- endif -%}
+    </form>
+
+    <!-- Trust signals -->
+    <div style="display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;">
+      <span style="font-size:10px;color:var(--text-3);letter-spacing:0.08em;">Free shipping over $60</span>
+      <span style="font-size:10px;color:var(--text-3);letter-spacing:0.08em;">Easy returns</span>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product",
+  "settings": []
+}
+{% endschema %}

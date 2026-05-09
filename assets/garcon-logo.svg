@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 160" width="780" height="160">
+  <defs>
+    <!-- Distress / grain filter -->
+    <filter id="garcon-distress" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" seed="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="distorted"/>
+      <feMerge>
+        <feMergeNode in="distorted"/>
+      </feMerge>
+    </filter>
+
+    <!-- Mask with diagonal slash cuts -->
+    <mask id="garcon-slash-mask">
+      <!-- White base = everything visible -->
+      <rect width="780" height="160" fill="white"/>
+      <!-- Slash 1: G/A boundary -->
+      <polygon points="130,0 136,0 122,160 116,160" fill="black"/>
+      <!-- Slash 2: in the A -->
+      <polygon points="248,0 253,0 237,160 232,160" fill="black"/>
+      <!-- Slash 3: between R/C -->
+      <polygon points="396,0 403,0 385,160 378,160" fill="black"/>
+      <!-- Slash 4: in the O -->
+      <polygon points="540,0 545,0 529,160 524,160" fill="black"/>
+      <!-- Slash 5: in the N -->
+      <polygon points="678,0 682,0 668,160 664,160" fill="black"/>
+      <!-- Fine horizontal scratch 1 -->
+      <rect x="0" y="38" width="780" height="1.5" fill="black" opacity="0.4"/>
+      <!-- Fine horizontal scratch 2 -->
+      <rect x="0" y="120" width="780" height="0.8" fill="black" opacity="0.3"/>
+    </mask>
+  </defs>
+
+  <!-- Transparent background -->
+  <rect width="780" height="160" fill="none"/>
+
+  <!-- Wordmark with distress filter and slash mask -->
+  <g filter="url(#garcon-distress)" mask="url(#garcon-slash-mask)">
+    <text
+      x="10"
+      y="135"
+      font-family="'Bebas Neue', Impact, 'Arial Narrow', sans-serif"
+      font-size="148"
+      font-weight="900"
+      letter-spacing="-2"
+      fill="#EBEBEB"
+      transform="skewX(-7)"
+    >GARCON</text>
+  </g>
+
+  <!-- Purple accent bar at bottom -->
+  <rect x="0" y="154" width="780" height="3" fill="#8B5CF6"/>
+  <!-- Purple corner dots -->
+  <circle cx="4" cy="155" r="3" fill="#8B5CF6"/>
+  <circle cx="776" cy="155" r="3" fill="#8B5CF6"/>
+</svg>

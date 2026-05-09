@@ -1,0 +1,60 @@
+<section class="garcon-hero" id="garcon-hero">
+
+  <!-- Scratch animation lines -->
+  <div class="hero-scratch" aria-hidden="true">
+    <div class="hero-scratch__line"></div>
+    <div class="hero-scratch__line"></div>
+    <div class="hero-scratch__line"></div>
+  </div>
+
+  <!-- Purple vertical accents -->
+  <div class="hero-accent hero-accent--left" aria-hidden="true"></div>
+  <div class="hero-accent hero-accent--right" aria-hidden="true"></div>
+
+  <!-- Main content -->
+  <div class="hero-content">
+    <img
+      class="hero-logo"
+      src="{{ 'garcon-logo.svg' | asset_url }}"
+      alt="GARCON"
+      width="640"
+      height="120"
+      loading="eager"
+    >
+
+    {%- if section.settings.tagline != blank -%}
+      <p class="hero-tagline">{{ section.settings.tagline }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.cta_label != blank and section.settings.cta_link != blank -%}
+      <a href="{{ section.settings.cta_link }}" class="hero-cta">
+        {{ section.settings.cta_label }}
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    {%- endif -%}
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="hero-scroll" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="hero-scroll__arrow"></div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "GARCON Hero",
+  "tag": "section",
+  "class": "section-hero",
+  "limit": 1,
+  "settings": [
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Meme apparel for the culturally broken." },
+    { "type": "text", "id": "cta_label", "label": "CTA button label", "default": "Shop Now" },
+    { "type": "url", "id": "cta_link", "label": "CTA button link" }
+  ],
+  "presets": [{ "name": "GARCON Hero" }]
+}
+{% endschema %}

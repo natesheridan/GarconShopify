@@ -1,0 +1,19 @@
+{
+  "general": {
+    "search": "Search",
+    "close": "Close",
+    "loading": "Loading",
+    "cart": {
+      "title": "Cart",
+      "empty": "Your cart is empty.",
+      "add": "Add to cart",
+      "checkout": "Checkout",
+      "total": "Total",
+      "subtotal": "Subtotal"
+    },
+    "product": {
+      "sold_out": "Sold Out",
+      "new": "New"
+    }
+  }
+}

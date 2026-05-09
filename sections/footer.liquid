@@ -1,0 +1,43 @@
+<footer class="site-footer">
+  <div class="footer-brand">
+    <img src="{{ 'garcon-logo.svg' | asset_url }}" alt="{{ shop.name }}" height="24" loading="lazy">
+    <p style="margin-top:12px">{{ section.settings.tagline | default: 'Meme apparel for the culturally broken.' }}</p>
+  </div>
+
+  <nav class="footer-nav">
+    <h4>Store</h4>
+    {%- for link in linklists[section.settings.footer_menu].links -%}
+      <a href="{{ link.url }}">{{ link.title }}</a>
+    {%- endfor -%}
+  </nav>
+
+  <div class="footer-social">
+    <h4>Contact</h4>
+    {%- if section.settings.email != blank -%}
+      <a href="mailto:{{ section.settings.email }}" style="font-size:12px;color:var(--text-2);display:block;margin-bottom:8px;">{{ section.settings.email }}</a>
+    {%- endif -%}
+    {%- if section.settings.instagram != blank -%}
+      <a href="https://instagram.com/{{ section.settings.instagram }}" target="_blank" rel="noopener" style="font-size:12px;color:var(--text-2);display:block;margin-bottom:8px;">@{{ section.settings.instagram }}</a>
+    {%- endif -%}
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+    <div style="display:flex;gap:20px">
+      <a href="{{ routes.root_url }}policies/privacy-policy">Privacy</a>
+      <a href="{{ routes.root_url }}policies/terms-of-service">Terms</a>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "link_list", "id": "footer_menu", "default": "footer", "label": "Footer menu" },
+    { "type": "text", "id": "tagline", "label": "Brand tagline", "default": "Meme apparel for the culturally broken." },
+    { "type": "text", "id": "email", "label": "Contact email" },
+    { "type": "text", "id": "instagram", "label": "Instagram handle (without @)" }
+  ]
+}
+{% endschema %}

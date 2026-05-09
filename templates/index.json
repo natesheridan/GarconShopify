@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "garcon-hero": {
+      "type": "garcon-hero",
+      "settings": {
+        "tagline": "Meme apparel for the culturally broken.",
+        "cta_label": "Shop Now",
+        "cta_link": "/collections/all"
+      }
+    },
+    "featured-products": {
+      "type": "featured-products",
+      "settings": {
+        "heading": "Drop",
+        "product_limit": 3
+      }
+    },
+    "brand-strip": {
+      "type": "brand-strip",
+      "settings": {}
+    }
+  },
+  "order": ["garcon-hero", "featured-products", "brand-strip"]
+}

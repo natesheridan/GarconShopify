@@ -1,0 +1,41 @@
+<header class="site-header" id="site-header">
+  <button class="menu-toggle" aria-label="Open menu" aria-controls="mobile-nav">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <a href="{{ routes.root_url }}" class="site-header__logo">
+    <img
+      src="{{ 'garcon-logo.svg' | asset_url }}"
+      alt="{{ shop.name }}"
+      width="120"
+      height="32"
+      loading="eager"
+    >
+  </a>
+
+  <nav class="site-header__nav" aria-label="Primary">
+    {%- for link in linklists[section.settings.menu].links -%}
+      <a href="{{ link.url }}">{{ link.title }}</a>
+    {%- endfor -%}
+  </nav>
+
+  <div class="site-header__actions">
+    <a href="{{ routes.cart_url }}" class="cart-link" aria-label="Cart">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span class="cart-count" style="display:none">0</span>
+    </a>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    { "type": "link_list", "id": "menu", "default": "main-menu", "label": "Navigation menu" }
+  ]
+}
+{% endschema %}
