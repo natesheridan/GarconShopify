@@ -113,9 +113,9 @@ function initLogoScrollMorph() {
   ].join(';');
   document.body.appendChild(flyLogo);
 
-  // Hero logo invisible — fly logo takes over visually
-  heroMain.style.transition = 'opacity 0.05s';
-  heroMain.style.opacity    = '0';
+  // Entire heroWrap hidden — fly logo takes over visually (eliminates ghost glitch layers)
+  heroMain.style.opacity = '0';
+  if (heroWrap) { heroWrap.style.transition = 'none'; heroWrap.style.opacity = '0'; }
 
   // Constants for header target
   const HEADER_H   = 52;    // header height px
@@ -134,10 +134,9 @@ function initLogoScrollMorph() {
     const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
 
     // Fade hero sub-content as user scrolls away
-    if (heroSub)   heroSub.style.opacity   = String(Math.max(0, 1 - progress * 2.2));
+    if (heroSub)    heroSub.style.opacity    = String(Math.max(0, 1 - progress * 2.2));
     if (heroScroll) heroScroll.style.opacity = String(Math.max(0, 1 - progress * 3));
-    // Glitch layers fade first
-    if (heroWrap)  heroWrap.style.opacity  = String(Math.max(0, 1 - eased * 2.5));
+    // heroWrap stays at 0 — fly logo owns the visual
 
     if (progress >= 1) {
       // Logo has fully landed in the header — swap fly logo for header img
